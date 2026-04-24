@@ -1,5 +1,6 @@
 # CODSOFT
 CODSOFT AI Internship
+# AI-powered and algorithmic projects
 
 > Artificial Intelligence projects built during the **CodSoft AI Internship Program**
 
