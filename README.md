@@ -1,6 +1,5 @@
 # CODSOFT
-CODSOFT AI Internship 
-# 🤖 CODSOFT AI Internship Tasks
+CODSOFT AI Internship
 
 > Artificial Intelligence projects built during the **CodSoft AI Internship Program**
 
