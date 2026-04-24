@@ -167,7 +167,7 @@ All three projects are **single HTML files** — no installation or dependencies
 ## 👩‍💻 Author
 
 **Internship Program:** CodSoft AI Internship
-**Batch:** 2024–2025
+**Batch:** APRIL BATCH B93
 
 ---
 
