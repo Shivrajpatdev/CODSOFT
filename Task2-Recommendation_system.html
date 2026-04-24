@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skincare Recommender</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #fdf6ee;
+      --blush: #e8c4b0;
+      --rose:  #c4796a;
+      --deep:  #3a1f1a;
+      --sage:  #8aab8a;
+      --gold:  #c9a96e;
+      --muted: #9a8070;
+      --card:  #fff9f4;
+      --border:#e8ddd4;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--cream);
+      color: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(160deg, #3a1f1a 0%, #6b3a30 60%, #c4796a 100%);
+      padding: 56px 24px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--blush);
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 7vw, 4rem);
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .hero h1 em { color: var(--blush); font-style: italic; }
+    .hero p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      max-width: 400px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ── Quiz ── */
+    .quiz-wrap {
+      max-width: 720px;
+      margin: -32px auto 0;
+      padding: 0 20px 60px;
+    }
+
+    .quiz-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 8px 40px rgba(58,31,26,0.08);
+    }
+
+    .step { display: none; }
+    .step.active { display: block; animation: fadeUp 0.4s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .step h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: var(--deep);
+      margin-bottom: 24px;
+      line-height: 1.25;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .opt {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+      text-align: left;
+    }
+    .opt:hover { border-color: var(--rose); background: #fff5f2; }
+    .opt.selected {
+      border-color: var(--rose);
+      background: linear-gradient(135deg, #fff5f2, #fdeae4);
+      box-shadow: 0 2px 12px rgba(196,121,106,0.15);
+    }
+    .opt-icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+    .opt-title { font-size: 0.9rem; font-weight: 500; color: var(--deep); }
+    .opt-desc  { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 28px;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--rose);
+      color: #fff;
+      flex: 1;
+      max-width: 200px;
+    }
+    .btn-primary:hover { background: #b5685a; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--muted); color: var(--deep); }
+
+    .progress-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--rose), var(--gold));
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.show { display: block; animation: fadeUp 0.5s ease; }
+
+    .results-header {
+      text-align: center;
+      padding: 40px 20px 20px;
+    }
+    .results-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      color: var(--deep);
+      margin-bottom: 8px;
+    }
+    .results-header p { color: var(--muted); font-size: 0.9rem; }
+
+    .profile-chip {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--rose), var(--gold));
+      color: #fff;
+      padding: 6px 18px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      margin: 12px 0 0;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+
+    .product-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(58,31,26,0.1);
+    }
+
+    .product-color {
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+    }
+
+    .product-body { padding: 18px; }
+    .product-type {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .product-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--deep);
+      margin-bottom: 6px;
+    }
+    .product-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .product-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-size: 0.68rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: #f0e8e4;
+      color: var(--rose);
+      font-weight: 500;
+    }
+
+    .match-score {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .match-label { font-size: 0.72rem; color: var(--muted); }
+    .match-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .match-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--gold)); border-radius: 2px; }
+    .match-pct { font-size: 0.75rem; font-weight: 500; color: var(--sage); }
+
+    .restart-row {
+      text-align: center;
+      padding: 20px 20px 60px;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      color: var(--deep);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .section-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">✦ AI-Powered Skincare</div>
+  <h1>Find Your <em>Perfect</em><br/>Skincare Routine</h1>
+  <p>Answer a few questions and our content-based algorithm matches you with the ideal products.</p>
+</div>
+
+<!-- Quiz -->
+<div class="quiz-wrap" id="quiz-section">
+  <div class="quiz-card">
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:20%"></div></div>
+
+    <!-- Step 1: Skin Type -->
+    <div class="step active" id="step-1">
+      <div class="step-label">Step 1 of 4</div>
+      <h2>What's your skin type?</h2>
+      <div class="options">
+        <div class="opt" data-key="skinType" data-val="oily" onclick="select(this)">
+          <span class="opt-icon">💧</span>
+          <div class="opt-title">Oily</div>
+          <div class="opt-desc">Shiny, enlarged pores</div>
+        </div>
+        <div class="opt" data-key="skinType" data-val="dry" onclick="select(this)">
+          <span class="opt-icon">🌵</span>
+          <div class="opt-title">Dry</div>
+          <div class="opt-desc">Tight, flaky, rough</div>
+        </div>
+        <div class="opt" data-key="skinType" data-val="combination" onclick="select(this)">
+          <span class="opt-icon">☯️</span>
+          <div class="opt-title">Combination</div>
+          <div class="opt-desc">Oily T-zone, dry cheeks</div>
+        </div>
+        <div class="opt" data-key="skinType" data-val="sensitive" onclick="select(this)">
+          <span class="opt-icon">🌸</span>
+          <div class="opt-title">Sensitive</div>
+          <div class="opt-desc">Reacts easily, redness</div>
+        </div>
+        <div class="opt" data-key="skinType" data-val="normal" onclick="select(this)">
+          <span class="opt-icon">✨</span>
+          <div class="opt-title">Normal</div>
+          <div class="opt-desc">Balanced, few issues</div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="nextStep(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Concerns -->
+    <div class="step" id="step-2">
+      <div class="step-label">Step 2 of 4</div>
+      <h2>What are your main skin concerns?</h2>
+      <div class="options">
+        <div class="opt" data-key="concern" data-val="acne" onclick="select(this)">
+          <span class="opt-icon">🔴</span>
+          <div class="opt-title">Acne & Breakouts</div>
+          <div class="opt-desc">Pimples, clogged pores</div>
+        </div>
+        <div class="opt" data-key="concern" data-val="aging" onclick="select(this)">
+          <span class="opt-icon">⏳</span>
+          <div class="opt-title">Anti-Aging</div>
+          <div class="opt-desc">Wrinkles, fine lines</div>
+        </div>
+        <div class="opt" data-key="concern" data-val="brightening" onclick="select(this)">
+          <span class="opt-icon">🌟</span>
+          <div class="opt-title">Brightening</div>
+          <div class="opt-desc">Dullness, dark spots</div>
+        </div>
+        <div class="opt" data-key="concern" data-val="hydration" onclick="select(this)">
+          <span class="opt-icon">💦</span>
+          <div class="opt-title">Hydration</div>
+          <div class="opt-desc">Moisture, plumpness</div>
+        </div>
+        <div class="opt" data-key="concern" data-val="redness" onclick="select(this)">
+          <span class="opt-icon">🌹</span>
+          <div class="opt-title">Redness & Calm</div>
+          <div class="opt-desc">Irritation, rosacea</div>
+        </div>
+        <div class="opt" data-key="concern" data-val="pores" onclick="select(this)">
+          <span class="opt-icon">🔬</span>
+          <div class="opt-title">Pore Care</div>
+          <div class="opt-desc">Minimize pores</div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="prevStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Budget -->
+    <div class="step" id="step-3">
+      <div class="step-label">Step 3 of 4</div>
+      <h2>What's your skincare budget?</h2>
+      <div class="options">
+        <div class="opt" data-key="budget" data-val="budget" onclick="select(this)">
+          <span class="opt-icon">🪙</span>
+          <div class="opt-title">Budget-Friendly</div>
+          <div class="opt-desc">Under ₹500 per product</div>
+        </div>
+        <div class="opt" data-key="budget" data-val="mid" onclick="select(this)">
+          <span class="opt-icon">💳</span>
+          <div class="opt-title">Mid-Range</div>
+          <div class="opt-desc">₹500 – ₹2000</div>
+        </div>
+        <div class="opt" data-key="budget" data-val="luxury" onclick="select(this)">
+          <span class="opt-icon">👑</span>
+          <div class="opt-title">Luxury</div>
+          <div class="opt-desc">₹2000 and above</div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="prevStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Preference -->
+    <div class="step" id="step-4">
+      <div class="step-label">Step 4 of 4</div>
+      <h2>Any ingredient preference?</h2>
+      <div class="options">
+        <div class="opt" data-key="preference" data-val="natural" onclick="select(this)">
+          <span class="opt-icon">🌿</span>
+          <div class="opt-title">Natural / Organic</div>
+          <div class="opt-desc">Plant-based ingredients</div>
+        </div>
+        <div class="opt" data-key="preference" data-val="science" onclick="select(this)">
+          <span class="opt-icon">🧪</span>
+          <div class="opt-title">Science-Backed</div>
+          <div class="opt-desc">Clinically proven actives</div>
+        </div>
+        <div class="opt" data-key="preference" data-val="fragrance-free" onclick="select(this)">
+          <span class="opt-icon">🚫</span>
+          <div class="opt-title">Fragrance-Free</div>
+          <div class="opt-desc">Gentle, no perfumes</div>
+        </div>
+        <div class="opt" data-key="preference" data-val="any" onclick="select(this)">
+          <span class="opt-icon">🤷</span>
+          <div class="opt-title">No Preference</div>
+          <div class="opt-desc">Open to anything</div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="prevStep(3)">← Back</button>
+        <button class="btn btn-primary" onclick="showResults()">✦ Get My Recommendations</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Results -->
+<div id="results">
+  <div class="results-header">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);">✦ Your Personalized Routine</p>
+    <h2>Your Skincare Matches</h2>
+    <p>Based on content-based filtering — matched to your skin profile</p>
+    <div class="profile-chip" id="profile-chip">Oily · Acne · Mid-Range</div>
+  </div>
+  <div class="products-grid" id="products-grid"></div>
+  <div class="restart-row">
+    <button class="btn btn-ghost" onclick="restart()" style="border-color:var(--rose);color:var(--rose);">↺ Retake Quiz</button>
+  </div>
+</div>
+
+<script>
+// ── User profile ──────────────────────────────────────────────────────
+const profile = { skinType: null, concern: null, budget: null, preference: null };
+let currentStep = 1;
+const totalSteps = 4;
+
+// ── Product database ──────────────────────────────────────────────────
+const PRODUCTS = [
+  // Cleansers
+  { name: "Salicylic Acid Cleanser", type: "Cleanser", icon: "🫧",
+    color: "#e8f4f0", tags: ["salicylic acid", "oil control"],
+    skinType: ["oily","combination"], concern: ["acne","pores"],
+    budget: ["budget","mid"], preference: ["science","any"],
+    desc: "Deep-cleansing formula with 2% salicylic acid to unclog pores and control excess sebum." },
+
+  { name: "Ceramide Gentle Wash", type: "Cleanser", icon: "🌊",
+    color: "#e8eef8", tags: ["ceramides", "gentle"],
+    skinType: ["dry","sensitive","normal"], concern: ["hydration","redness"],
+    budget: ["budget","mid"], preference: ["fragrance-free","any"],
+    desc: "A barrier-strengthening cleanser with ceramides and niacinamide for calm, comfortable skin." },
+
+  { name: "Rose Hip Micellar Water", type: "Cleanser", icon: "🌹",
+    color: "#f8ece8", tags: ["rosehip", "gentle", "natural"],
+    skinType: ["sensitive","normal","dry"], concern: ["redness","brightening"],
+    budget: ["budget","mid"], preference: ["natural","any"],
+    desc: "Botanical micellar water infused with rosehip to gently dissolve makeup and impurities." },
+
+  // Serums
+  { name: "Niacinamide 10% Serum", type: "Serum", icon: "💎",
+    color: "#f0f0f8", tags: ["niacinamide", "pore minimizing"],
+    skinType: ["oily","combination","normal"], concern: ["pores","brightening","acne"],
+    budget: ["budget","mid"], preference: ["science","any"],
+    desc: "High-strength niacinamide serum that visibly minimizes pores and regulates oil production." },
+
+  { name: "Hyaluronic Acid Boost", type: "Serum", icon: "💧",
+    color: "#e8f4fc", tags: ["hyaluronic acid", "plumping"],
+    skinType: ["dry","normal","sensitive"], concern: ["hydration","aging"],
+    budget: ["mid","budget"], preference: ["science","fragrance-free","any"],
+    desc: "Multi-weight hyaluronic acid draws moisture deep into skin for lasting plumpness." },
+
+  { name: "Vitamin C Glow Serum", type: "Serum", icon: "🍊",
+    color: "#fdf0e0", tags: ["vitamin C", "brightening", "antioxidant"],
+    skinType: ["normal","combination","oily"], concern: ["brightening","aging"],
+    budget: ["mid","luxury"], preference: ["science","any"],
+    desc: "Stable 15% vitamin C complex that fades dark spots and delivers a luminous, even glow." },
+
+  { name: "Retinol Night Repair", type: "Serum", icon: "🌙",
+    color: "#f0e8f8", tags: ["retinol", "anti-aging"],
+    skinType: ["normal","combination","oily"], concern: ["aging","brightening"],
+    budget: ["mid","luxury"], preference: ["science","any"],
+    desc: "Encapsulated retinol serum that firms, smooths fine lines, and renews skin overnight." },
+
+  { name: "Centella Calm Serum", type: "Serum", icon: "🌿",
+    color: "#e8f4e8", tags: ["centella", "soothing", "natural"],
+    skinType: ["sensitive","dry"], concern: ["redness","hydration"],
+    budget: ["budget","mid"], preference: ["natural","fragrance-free","any"],
+    desc: "Cica-powered serum that instantly soothes reactive skin and rebuilds the moisture barrier." },
+
+  // Moisturizers
+  { name: "Oil-Free Gel Moisturizer", type: "Moisturizer", icon: "🫙",
+    color: "#e8f8f0", tags: ["oil-free", "lightweight"],
+    skinType: ["oily","combination"], concern: ["acne","pores","hydration"],
+    budget: ["budget","mid"], preference: ["science","fragrance-free","any"],
+    desc: "Weightless gel-cream that hydrates without clogging pores or adding shine." },
+
+  { name: "Shea Butter Rich Cream", type: "Moisturizer", icon: "🧴",
+    color: "#fdf4e0", tags: ["shea butter", "rich", "nourishing"],
+    skinType: ["dry","sensitive"], concern: ["hydration","redness"],
+    budget: ["budget","mid"], preference: ["natural","any"],
+    desc: "Intensely nourishing cream with organic shea and oat extract for deeply dry skin." },
+
+  { name: "Peptide Luxe Cream", type: "Moisturizer", icon: "✨",
+    color: "#f8f0e8", tags: ["peptides", "anti-aging", "luxury"],
+    skinType: ["normal","dry","combination"], concern: ["aging","hydration"],
+    budget: ["luxury"], preference: ["science","any"],
+    desc: "Award-winning peptide complex that visibly lifts and firms skin over time." },
+
+  // SPF
+  { name: "Invisible Mineral SPF 50", type: "Sunscreen", icon: "☀️",
+    color: "#fffbe8", tags: ["SPF 50", "mineral", "daily"],
+    skinType: ["sensitive","normal","dry"], concern: ["redness","brightening","aging"],
+    budget: ["mid","luxury"], preferenc
