@@ -139,7 +139,7 @@ All three projects are **single HTML files** — no installation or dependencies
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/CODSOFT.git
+   git clone https://github.com/Shivrajpatdev/CODSOFT.git
    ```
 
 2. Navigate to any task folder and open the `.html` file in your browser:
@@ -165,7 +165,7 @@ All three projects are **single HTML files** — no installation or dependencies
 
 ---
 
-## 👩‍💻 Author
+## 👩‍💻 Author - Shivraj Patel
 
 **Internship Program:** CodSoft AI Internship
 **Batch:** APRIL BATCH B93
